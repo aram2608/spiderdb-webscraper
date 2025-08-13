@@ -7,11 +7,24 @@ class BookSpider(scrapy.Spider):
     allowed_domains = ["books.toscrape.com"]
     start_urls = ["https://books.toscrape.com/"]
 
+    def start_requests(self):
+        """Refactored .start_requests to handle error logging."""
+        for url in self.start_urls:
+            yield scrapy.Request(
+                url, callback=self.parse, errback=self.log_error
+            )
+
     def parse(self, response):
         """
         Parse method provided by scrapy framework.
         Populated with the css selectors for the url, title, and price.
         Selectors found by parsing the target website using the browsers developer tools.
+
+        Spider contract for testing
+        @url https://books.toscrape.com
+        @returns items 20 20
+        @returns request 1 50
+        @scrapes url title price
         """
         # Iterates over every book in url response
         for book in response.css("article.product_pod"):
@@ -28,4 +41,15 @@ class BookSpider(scrapy.Spider):
         if next_page:
             # Joins attribute to base url
             next_page_url = response.urljoin(next_page)
-            yield scrapy.Request(url=next_page_url, callback=self.parse)
+            # Logging
+            self.logger.info(
+                f"Navigating to next page with URL {next_page_url}."
+            )
+            yield scrapy.Request(url=next_page_url, 
+                                callback=self.parse,
+                                errback=self.log_error,
+                                )
+
+    def log_error(self, failure):
+        """Helper method for error handling."""
+        self.logger.error(repr(failure))

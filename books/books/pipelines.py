@@ -36,33 +36,34 @@ class MongoPipeline:
         """Closes mongodb connection when spider is done."""
         self.client.close()
 
+    #def process_item(self, item, spider):
+    #    """
+    #    Inserts scraped items into mongodb, 
+    #    Only keeping one instance no matter how many times the scraperis run.
+    #    """
+    #    item_id = self.compute_item_id(item)
+    #    # Check to see if scraped item is unique
+    #    if self.db[self.COLLECTION_NAME].find_one({"_id": item_id}):
+    #        raise DropItem(f"Duplicate item found: {item}")
+    #    # If item is unique save to mongodb
+    #    else:
+    #        item["_id"] = item_id
+    #        self.db[self.COLLECTION_NAME].insert_one(ItemAdapter(item).asdict())
+    #        return item
+
     def process_item(self, item, spider):
         """
         Inserts scraped items into mongodb, 
         Only keeping one instance no matter how many times the scraperis run.
         """
         item_id = self.compute_item_id(item)
-        # Check to see if scraped item is unique
-        if self.db[self.COLLECTION_NAME].find_one({"_id": item_id}):
-            raise DropItem(f"Duplicate item found: {item}")
-        # If item is unique save to mongodb
-        else:
-            item["_id"] = item_id
-            self.db[self.COLLECTION_NAME].insert_one(ItemAdapter(item).asdict())
-            return item
+        item_dict = ItemAdapter(item).asdict()
 
-    # This is another method you can use that does not drop items when the url is changed
-    # both methods work but its up to your discretion which one you prefer
-    # this method uses the upsert=True flag to make sure unique items are kept
-    #def process_item(self, item, spider):
-    #    item_id = self.compute_item_id(item)
-    #    item_dict = ItemAdapter(item).asdict()
-
-    #    self.db[self.COLLECTION_NAME].update_one(
-    #        filter={"_id": item_id},
-    #        update={"$set": item_dict},
-    #        upsert=True
-    #    )
+        self.db[self.COLLECTION_NAME].update_one(
+            filter={"_id": item_id},
+            update={"$set": item_dict},
+            upsert=True
+        )
 
         return item
 
