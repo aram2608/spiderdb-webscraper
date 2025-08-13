@@ -22,3 +22,10 @@ class BookSpider(scrapy.Spider):
             item["price"] = book.css(".price_color::text").get()
             # Yield turns parse into a generator and allows for multiple requests as opposed to just return the values
             yield item
+
+        # Handles pagination for web crawler recursively
+        next_page = response.css("li.next > a::attr(href)").get()
+        if next_page:
+            # Joins attribute to base url
+            next_page_url = response.urljoin(next_page)
+            yield scrapy.Request(url=next_page_url, callback=self.parse)
