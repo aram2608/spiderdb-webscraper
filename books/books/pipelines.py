@@ -55,6 +55,7 @@ class MongoPipeline:
         """
         Inserts scraped items into mongodb, 
         Only keeping one instance no matter how many times the scraperis run.
+        Auto creates db/collection on first insert
         """
         item_id = self.compute_item_id(item)
         item_dict = ItemAdapter(item).asdict()

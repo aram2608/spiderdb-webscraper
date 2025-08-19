@@ -1,3 +1,4 @@
+import os
 # Scrapy settings for books project
 #
 # For simplicity, this file contains only settings considered important or
@@ -87,8 +88,8 @@ ITEM_PIPELINES = {
 FEED_EXPORT_ENCODING = "utf-8"
 
 # Database details
-MONGO_URI = "mongodb://localhost:27017"
-MONGO_DATABASE = "spiderdb"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_DATABASE = os.getenv("MONGO_DATABASE", "spiderdb")
 
 # Logging Constans
 #LOG_LEVEL = "DEBUG"

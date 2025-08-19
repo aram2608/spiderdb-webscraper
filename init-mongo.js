@@ -1,8 +1,4 @@
 // init-mongo.js
-db.createUser({
-    user: "me",
-    pwd: "pass",
-    roles: [{ role: "readWrite", db: "spiderdb" }]
-});
-
-db.getSiblingDB("spiderdb").createCollection("books");
+db = db.getSiblingDB("spiderdb");
+db.createCollection("books");
+db.books.insertOne({ __seed: true, createdAt: new Date() });

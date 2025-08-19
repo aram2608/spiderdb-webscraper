@@ -8,22 +8,29 @@ services:
     volumes:
       - mongo_data:/data/db
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      # Makes the init script default to this DB on first run
+      MONGO_INITDB_DATABASE: spiderdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Browser GUI for viewing mongodb database
   mongo-express:
     image: mongo-express:1
     container_name: spiderdb-me
     restart: unless-stopped
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     ports:
       - "8081:8081"
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo
       ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      # pass
-      ME_CONFIG_MONGODB_ADMINPASSWORD: adminpass
+      # No DB auth enabled on mongo, so disable basic auth here too
+      ME_CONFIG_BASICAUTH: "false"
 
   scraper:
     build:
@@ -31,7 +38,8 @@ services:
       dockerfile: Dockerfile
     container_name: spiderdb-scraper
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
     volumes:
       - .:/app
     working_dir: /app/books
