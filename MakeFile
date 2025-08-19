@@ -13,4 +13,4 @@ logs:
 \tdocker compose logs -f scraper
 
 test:
-\tdocker compose run --rm scraper pytest -q books/tests
+\tdocker compose run --rm scraper unittest -q books/

@@ -88,7 +88,7 @@ FEED_EXPORT_ENCODING = "utf-8"
 
 # Database details
 MONGO_URI = "mongodb://localhost:27017"
-MONGO_DATABASE = "books_db"
+MONGO_DATABASE = "spiderdb"
 
 # Logging Constans
 #LOG_LEVEL = "DEBUG"

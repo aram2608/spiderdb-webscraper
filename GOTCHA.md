@@ -13,8 +13,8 @@ mongod --dbpath ~/mongodb/data
 mongosh
 
 # Mongosh interacive terminal
-test> use books_db
-switched to db books_db
+test> use spiderdb
+switched to db spiderdb
 books_db> db.createCollection("books")
 { ok: 1 }
 books_db> show collections

@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mongo:
     image: mongo:7
@@ -7,12 +5,11 @@ services:
     restart: unless-stopped
     ports:
       - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS:-adminpass}
     volumes:
       - mongo_data:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
 
+  # Browser GUI for viewing mongodb database
   mongo-express:
     image: mongo-express:1
     container_name: spiderdb-me
@@ -24,8 +21,9 @@ services:
     environment:
       ME_CONFIG_MONGODB_SERVER: mongo
       ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USER:-admin}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASS:-adminpass}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      # pass
+      ME_CONFIG_MONGODB_ADMINPASSWORD: adminpass
 
   scraper:
     build:
@@ -34,15 +32,13 @@ services:
     container_name: spiderdb-scraper
     depends_on:
       - mongo
-    # live-edit your code without rebuilding
     volumes:
       - .:/app
     working_dir: /app/books
     environment:
-      # if your pipeline needs auth, use: mongodb://admin:adminpass@mongo:27017/?authSource=admin
-      MONGODB_URI: mongodb://mongo:27017
-      MONGODB_DB: spiderdb
-    command: ["scrapy", "crawl", "book"]  # <-- your spider module is books/spiders/book.py
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DATABASE: spiderdb
+    command: ["scrapy", "crawl", "book"]
 
 volumes:
   mongo_data:
