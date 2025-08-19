@@ -1,0 +1,16 @@
+.PHONY: up down crawl logs test
+
+up:
+\tdocker compose up --build
+
+down:
+\tdocker compose down -v
+
+crawl:
+\tdocker compose run --rm scraper scrapy crawl book -O out.json
+
+logs:
+\tdocker compose logs -f scraper
+
+test:
+\tdocker compose run --rm scraper pytest -q books/tests
